@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package helloworld;
+
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc BulkInsertSingers (BulkInsertSingersRequest) returns (BulkInsertSingersReply) {}
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}
+
+message BulkInsertSingersRequest {
+  repeated Singer singers = 1;
+}
+
+message BulkInsertSingersReply {}
+
+message Singer {
+  int64  singer_id   = 1;
+  string first_name  = 2;
+  string last_name   = 3;
+  bytes  singer_info = 4;
+}
