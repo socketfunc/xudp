@@ -6,7 +6,7 @@ require (
 	github.com/DataDog/zstd v1.4.1
 	github.com/aead/ecdh v0.2.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/golang/protobuf v1.3.2
+	github.com/golang/protobuf v1.3.5
 	github.com/k0kubun/pp v3.0.1+incompatible
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/satori/go.uuid v1.2.0
