@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/socketfunc/xudp"
@@ -32,5 +34,17 @@ func main() {
 	}
 	if err := sess.Send(buf); err != nil {
 		log.Fatal(err)
+	}
+
+	sess.Keepalive()
+
+	t := time.NewTicker(3 * time.Second)
+	defer t.Stop()
+	for {
+		select {
+		case now := <-t.C:
+			sess.Ping()
+			fmt.Println(now)
+		}
 	}
 }

@@ -228,7 +228,9 @@ func (f *PingFrame) Type() Type {
 }
 
 func (f *PingFrame) Bytes() []byte {
-	return nil
+	buf := make([]byte, 4)
+	binary.BigEndian.PutUint32(buf[0:4], f.StreamID)
+	return buf
 }
 
 func decodePingFrame(buf []byte) *PingFrame {
@@ -246,7 +248,9 @@ func (f *PongFrame) Type() Type {
 }
 
 func (f *PongFrame) Bytes() []byte {
-	return nil
+	buf := make([]byte, 4)
+	binary.BigEndian.PutUint32(buf[0:4], f.StreamID)
+	return buf
 }
 
 func decodePongFrame(buf []byte) *PongFrame {

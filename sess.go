@@ -2,6 +2,8 @@ package xudp
 
 import (
 	"crypto/sha256"
+	"fmt"
+	"log"
 	"math/rand"
 	"net"
 	"time"
@@ -50,7 +52,30 @@ func NewSess(conn *net.UDPConn, addr net.Addr, secret []byte) *Sess {
 	return sess
 }
 
-func (s *Sess) keepalive() {
+func (s *Sess) Keepalive() {
+	go func() {
+		for {
+			buf, err := s.read()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			h, err := DecodePacketHeader(buf)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			data, err := s.unmarshalData(buf[h.Size():])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			if h.Type == Pong {
+				pong := decodePongFrame(data)
+				fmt.Println(pong)
+			}
+		}
+	}()
 }
 
 func (s *Sess) setConnectionID(id []byte) {
@@ -93,6 +118,8 @@ func (s *Sess) read() ([]byte, error) {
 	buf := make([]byte, bufferSize)
 	n, err := s.conn.Read(buf)
 	if err != nil {
+		e, ok := err.(*net.OpError)
+		fmt.Println(ok, e.Err)
 		return nil, err
 	}
 	return buf[:n], nil
@@ -134,6 +161,41 @@ func (s *Sess) Receive() ([]byte, error) {
 	case in := <-s.incoming:
 		return in, nil
 	}
+}
+
+func (s *Sess) Ping() error {
+	streamID := rand.Uint32()
+	frame := &PingFrame{
+		StreamID: streamID,
+	}
+	data, err := s.marshalData(frame.Bytes())
+	if err != nil {
+		return err
+	}
+	header := &PacketHeader{
+		Type:         Ping,
+		ConnectionID: s.ConnectionID,
+		Sequence:     s.NextSequence(),
+		Channel:      1,
+	}
+	return s.send(Payload(header, data))
+}
+
+func (s *Sess) Pong(streamID uint32) error {
+	frame := &PongFrame{
+		StreamID: streamID,
+	}
+	data, err := s.marshalData(frame.Bytes())
+	if err != nil {
+		return err
+	}
+	header := &PacketHeader{
+		Type:         Pong,
+		ConnectionID: s.ConnectionID,
+		Sequence:     s.NextSequence(),
+		Channel:      1,
+	}
+	return s.send(Payload(header, data))
 }
 
 func (s *Sess) Send(buf []byte) error {

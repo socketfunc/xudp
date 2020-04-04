@@ -87,8 +87,15 @@ func (c *Conn) loop() error {
 		frame := decodeDataFrame(data)
 		return c.dataHandler(sess, frame)
 	case DataAck:
-		//frame := decodeDataAckFrame(data)
-		//sess.acknowledge <- frame.Bytes()
+	//frame := decodeDataAckFrame(data)
+	//sess.acknowledge <- frame.Bytes()
+	case Ping:
+		frame := decodePingFrame(data)
+		fmt.Println(frame.StreamID)
+		return sess.Pong(frame.StreamID)
+	case Pong:
+		frame := decodePongFrame(data)
+		fmt.Println(frame.StreamID)
 	}
 	return nil
 }
