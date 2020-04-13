@@ -3,7 +3,7 @@ module github.com/socketfunc/xudp
 go 1.13
 
 require (
-	github.com/DataDog/zstd v1.4.4
+	github.com/DataDog/zstd v1.4.5
 	github.com/aead/ecdh v0.2.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.3.5
